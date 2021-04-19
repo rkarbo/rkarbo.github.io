@@ -1,4 +1,4 @@
-name: "Ryan Karbowicz's Website""
+name: "Ryan Karbowicz's Website"
 output_dir: "."
 navbar:
   title: "Ryan Karbowicz"
@@ -11,6 +11,6 @@ navbar:
       href: about.html
 
 output:
-  html_doucument:
+  html_document:
     theme: simplex
     highlight: textmate

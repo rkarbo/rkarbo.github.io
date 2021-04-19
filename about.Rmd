@@ -2,7 +2,6 @@
 title: "about"
 author: "Ryan Karbowicz"
 date: "4/18/2021"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
