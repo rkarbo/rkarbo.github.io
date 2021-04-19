@@ -1,3 +1,16 @@
----
-title: test site
----
+name: "Ryan Karbowicz's Website""
+output_dir: "."
+navbar:
+  title: "Ryan Karbowicz"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Project"
+      href: project.html
+    - text: "About"
+      href: about.html
+
+output:
+  html_doucument:
+    theme: simplex
+    highlight: textmate
