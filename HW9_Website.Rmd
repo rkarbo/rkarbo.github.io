@@ -1,0 +1,10 @@
+---
+title: "HW9"
+author: "Ryan Karbowicz"
+date: "4/21/2021"
+output: html_document
+---
+
+## Introduction
+
+In this assignment, we extract tweets from Twitter and Facebook. To analyze these tweets, we then
