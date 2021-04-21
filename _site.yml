@@ -9,6 +9,8 @@ navbar:
       href: project.html
     - text: "About"
       href: about.html
+    - text: "HW9"
+      href: HW9_Website.html
 
 output:
   html_document:
