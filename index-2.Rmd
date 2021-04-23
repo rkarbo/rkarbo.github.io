@@ -1,7 +1,7 @@
 ---
-title: "HW9"
-author: "Ryan Karbowicz"
-date: "4/21/2021"
+title: "Homework 9 - Alligators"
+author: "Ammar Plumber, Elaina Lin, Kim Nguyen, Meghan Aines, Ryan Karbowicz"
+date: "4/13/2021"
 output: html_document
 ---
 
@@ -18,17 +18,9 @@ Our research question focuses on whether there are differences in sentiments of 
 
 Our method of sentiments analysis is text mining with R. 
 
-After getting tweets from twitter, we use basic tools of data exploration to transform, visualize, and examine different features of the datasets, such as source, time, length, and content (e.g, link and picture) of the tweets. We produce bar charts to visualize the most popular words used by each twitter account, as well as the most popular sentiments associated with tweets that each account produces. A wordcloud also helps paint a clearer picture of each company's most commonly used words.
+After getting tweets from twitter, we use basic tools of data exploration to transform, visualize, and examine different features of the datasets, such as source, time, length, and content (e.g, link and picture) of the tweets. 
 
-Next, we transform the datasets into tidy text format for sentiment analysis. The two main lexicons that we use are nrc and affin.  
-
-Finally, we run 4 different models to predict if a tweet was posted by either Facebook or Tiktok. The inputs of these models are the length of the tweet, as well as sentiment (which includes anger, surprise, anticipation, joy, trust, surprise, sadness, disgust, trust and fear).  
-
-The first model is a Simple Decision Tree, the second model is a Bagging Model, the third model is a Random Forest and the fourth model is a Gradient Boosting Model.
-
-Our results include a sum of squares analysis on the test set of data to determine which models have the smallest differences between the predicted tweeter and actual tweeter. We also include confusion matrices to analyze the prediction accuracy of the 4 models on the test set of data.
-
-
+Next, we transform the datasets into tidy text format for sentiment analysis. The two main lexicons that we use are nrc and affin. 
 
 
 ```{r, warning = FALSE, message = FALSE}
@@ -52,10 +44,11 @@ library(vip)
 
 
 ```{r, include = FALSE, message = FALSE, warning = FALSE, echo = FALSE}
-api_key <- "ZjgdoQTEFJhr7nYipWSC1qKCe"
-api_secret_key <- "ni3zNjMnLHteIhC7O23CwyWkfMhfgXEYzEyV6c38vru9XOuc26"
-access_token <- "1376231617123991552-MYRgQtit5dEUZWYnKObNEt3eppJVUH"
-access_token_secret <- "Q12oT8Utp437yTUTw3VjDdSAHq7FoxqdkhRnTjqmDvRwj"
+api_key <- "0000"
+api_secret_key <- "0000"
+access_token <- "0000"
+access_token_secret <- "0000"
+
 token <- create_token(
   app = "Hw9-alligators",
   consumer_key = api_key,
@@ -543,27 +536,11 @@ gb_test_confusion
 
 
 ## III. Results
-When testing the models on our test data sets, for the simple model we observed 81.38% accuracy, for the bagging model we observed 80.83% accuracy, for the random forest we observed 83.41% accuracy, and for the gradient boosting model we observed 84.43% accuracy. Another good metric to compare is balanced accuracy, which is the average of specificity and sensitivity. For the simple model, balanced accuracy is 81.3%. For the bagging model, balanced accuracy is 80.83%. For the random forest, balanced accuracy is 83.37%. For the gradient boosting model, balanced accuracy is 84.36%.  
 
-Therefore, it seems that in terms of prediction accuracy, the rank of our 4 models is as follows:  
-1. Gradient Boosting Model  
-2. Random Forest  
-3. Simple Model  
-4. Bagging Model
 
-When analyzing the sum of squares difference between the actual tweeter and the predicted tweeter, the results were as follows:  
 
-Simple model: 175.391975607092  
-Bagged model: 170.061500301201  
-Random forests model: 146.952559929777  
-Gradient boost model: 151.839521942722  
-
-In all, these results show us that the best model is a toss up between the Random Forest Model and the Gradient Boosting Model.
 
 
 
 ## IV. Conclusion
-Looking at the analyses, it seems that the Facebook and TikTok account and users tweet about these two social media platforms for different reasons. People tweeting about Facebook are likely to be reporting their account issues, which are associated with words such as "secure" and "trust." Whereas, people tweeting about TikTok seem to be participating in prize giveaways, which is associated with "anticipation" words such as "winning" and "tomorrow." Overall, these analyses mak
-
-## V. Contributions
-Ammar Plumber, Elaina Lin, Kim Nguyen, Meghan Aines, Ryan Karbowicz
+Looking at the analyses, it seems that the Facebook and TikTok account and users tweet about these two social media platforms for different reasons. People tweeting about Facebook are likely to be reporting their account issues, which are associated with words such as "secure" and "trust." Whereas, people tweeting about TikTok seem to be participating in prize giveaways, which is associated with "anticipation" words such as "winning" and "tomorrow." Overall, these analyses make sense given the different demographics of the two social media platforms. 
