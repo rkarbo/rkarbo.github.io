@@ -314,12 +314,571 @@ $(document).ready(function () {
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>In this assignment, we run machine learning algorithms to predict if a specific tweet was tweeted by either Facebook or Tiktok. The variables that we use for the predictions include length of tweet, as well as sentiment of the text. The best algorithim will be the one with the highest accuracy on a test data Then we test the algorithims on another subset of data to see how the algor</p>
+<div id="i.-introduction" class="section level2">
+<h2>I. Introduction</h2>
+<p>Social media has been evolved and affected our lives in many aspects. In this assignment, we aim to have a closer look at the two most popular social media platforms: Tiktok and Facebook. These platforms are in a similar industry but with very different target audiences, thus the two brands and their audiences could differ in their communication styles and language. Understanding the language used in these platforms may lead to their business implications and directions.</p>
+<p>Our research question focuses on whether there are differences in sentiments of tweet communications between Tiktok and Facebook account.</p>
 </div>
-<div id="section" class="section level2">
-<h2></h2>
+<div id="ii.-methodology" class="section level2">
+<h2>II. Methodology</h2>
+<p>Our method of sentiments analysis is text mining with R.</p>
+<p>After getting tweets from twitter, we use basic tools of data exploration to transform, visualize, and examine different features of the datasets, such as source, time, length, and content (e.g, link and picture) of the tweets. We produce bar charts to visualize the most popular words used by each twitter account, as well as the most popular sentiments associated with tweets that each account produces. A wordcloud also helps paint a clearer picture of each company’s most commonly used words.</p>
+<p>Next, we transform the datasets into tidy text format for sentiment analysis. The two main lexicons that we use are nrc and affin.</p>
+<p>Finally, we run 4 different models to predict if a tweet was posted by either Facebook or Tiktok. The inputs of these models are the length of the tweet, as well as sentiment (which includes anger, surprise, anticipation, joy, trust, surprise, sadness, disgust, trust and fear).</p>
+<p>The first model is a Simple Decision Tree, the second model is a Bagging Model, the third model is a Random Forest and the fourth model is a Gradient Boosting Model.</p>
+<p>Our results include a sum of squares analysis on the test set of data to determine which models have the smallest differences between the predicted tweeter and actual tweeter. We also include confusion matrices to analyze the prediction accuracy of the 4 models on the test set of data.</p>
+<pre class="r"><code>#Loading packages.
+library(rtweet)
+library(tidyverse)
+library(lubridate)
+library(scales)
+library(tidytext)
+library(wordcloud)
+library(textdata)
+
+library(caret)       # for general model fitting
+library(rpart)       # for fitting decision trees
+library(rpart.plot)
+library(ipred)       # for fitting bagged decision trees
+library(ranger)
+library(gbm)
+library(vip)</code></pre>
+<pre class="r"><code>#Getting tweets
+
+# Run these two lines to get the tweets 
+# and then save them as a csv for future use
+# tiktok &lt;- get_timeline(&quot;tiktok_us&quot;, n=3200)
+# tiktok %&gt;% write_as_csv(&#39;tiktok.csv&#39;)
+# 
+# facebook &lt;- get_timeline(&quot;Facebook&quot;, n=3200)
+# facebook %&gt;% write_as_csv(&quot;facebook.csv&quot;)
+
+tiktok &lt;-
+  read_csv(&#39;tiktok.csv&#39;) %&gt;% 
+  select(status_id, source, text, created_at)
+
+facebook &lt;-
+  read_csv(&#39;facebook.csv&#39;) %&gt;% 
+  select(status_id, source, text, created_at)
+
+nrc &lt;- read_rds(&quot;nrc.rds&quot;)
+
+facebook %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   status_id      source    text                              created_at         
+##   &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;                             &lt;dttm&gt;             
+## 1 x138202008034… Twitter … &quot;Ramadan Mubarak &lt;U+0001F319&gt;\n … 2021-04-13 17:17:18
+## 2 x138173442901… Khoros CX &quot;@MeenalK1 Hi Meenal. Do you hav… 2021-04-12 22:22:13
+## 3 x138173338263… Khoros CX &quot;@Afrojalipro Thanks for updatin… 2021-04-12 22:18:04
+## 4 x138173266838… Khoros CX &quot;@CallandManning Hi Calland. If … 2021-04-12 22:15:14
+## 5 x138171137687… Khoros CX &quot;@BHARTINANDAN4 Hello! Please vi… 2021-04-12 20:50:37
+## 6 x138171054847… Khoros CX &quot;@weathermatt22 Hi Matt. Please … 2021-04-12 20:47:20</code></pre>
+<pre class="r"><code>facebook %&gt;%
+  count(source, hour = hour(with_tz(created_at, &quot;EST&quot;))) %&gt;%
+  mutate(percent = n/sum(n)) %&gt;%
+  ggplot(aes(x = hour, y = percent, color = source)) +
+  labs(x = &quot;Hour of day (EST)&quot;, y = &quot;% of tweets&quot;, color = &quot;&quot;) + 
+  scale_y_continuous(labels = percent_format()) +
+  geom_line() +
+  ggtitle(&#39;Facebook Source Breakdown by Hour&#39;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>tiktok %&gt;%
+  count(source, hour = hour(with_tz(created_at, &quot;EST&quot;))) %&gt;%
+  mutate(percent = n/sum(n)) %&gt;%
+  ggplot(aes(x = hour, y = percent, color = source)) +
+  labs(x = &quot;Hour of day (EST)&quot;, y = &quot;% of tweets&quot;, color = &quot;&quot;) + 
+  scale_y_continuous(labels = percent_format()) +
+  geom_line() +
+  ggtitle(&#39;Tiktok Source Breakdown by Hour&#39;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-4-2.png" width="672" /> These above figures indicate Tiktok/Facebook breakdown by hour.</p>
+<pre class="r"><code>fb_wordcounts &lt;- 
+  facebook %&gt;%
+  mutate(tweetLength = str_length(text)) %&gt;% 
+  filter(tweetLength &lt; 500)
+
+tiktok_wordcounts &lt;- 
+  tiktok %&gt;%
+  mutate(tweetLength = str_length(text)) %&gt;% 
+  filter(tweetLength &lt; 500)
+
+writeLines(c(paste0(&quot;Facebook Mean Tweet Length: &quot;, 
+                  mean(fb_wordcounts$tweetLength)), 
+           paste0(&quot;TikTok Mean Tweet Length: &quot;, 
+                  mean(tiktok_wordcounts$tweetLength))))</code></pre>
+<pre><code>## Facebook Mean Tweet Length: 163.289555972483
+## TikTok Mean Tweet Length: 112.557921102066</code></pre>
+<pre class="r"><code>hist(tiktok_wordcounts$tweetLength)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>hist(fb_wordcounts$tweetLength)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>fb_picture_counts &lt;- 
+  facebook %&gt;%
+  filter(!str_detect(text, &#39;^&quot;&#39;)) %&gt;%
+  count(picture = ifelse(str_detect(text, &quot;t.co&quot;),
+                         &quot;Picture/link&quot;, &quot;No picture/link&quot;))
+
+tiktok_picture_counts &lt;- 
+  tiktok %&gt;%
+  filter(!str_detect(text, &#39;^&quot;&#39;)) %&gt;%
+  count(picture = ifelse(str_detect(text, &quot;t.co&quot;),
+                         &quot;Picture/link&quot;, &quot;No picture/link&quot;))
+
+barplot(fb_picture_counts$n, 
+        names.arg=c(&quot;No picture/link&quot;, &quot;Picture/link&quot;),
+        main = &quot;Facebook # of Tweets with and without pics/link&quot;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>barplot(tiktok_picture_counts$n, 
+        names.arg=c(&quot;No picture/link&quot;, &quot;Picture/link&quot;),
+        main = &quot;Tiktok # of Tweets with and without pics/link&quot;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<pre class="r"><code>reg &lt;- &quot;([^A-Za-z\\d#@&#39;]|&#39;(?![A-Za-z\\d#@]))&quot;
+
+# Unnest the text strings into a data frame of words
+fb_words &lt;- 
+  facebook %&gt;%
+  filter(!str_detect(text, &#39;^&quot;&#39;)) %&gt;%
+  mutate(text = str_replace_all(text, 
+                                &quot;https://t.co/[A-Za-z\\d]+|&amp;amp;&quot;, 
+                                &quot;&quot;)) %&gt;%
+  unnest_tokens(word, text, 
+                token = &quot;regex&quot;, 
+                pattern = reg) %&gt;%
+  filter(!word %in% stop_words$word,
+         str_detect(word, &quot;[a-z]&quot;))
+
+tiktok_words &lt;- 
+  tiktok %&gt;%
+  filter(!str_detect(text, &#39;^&quot;&#39;)) %&gt;%
+  mutate(text = str_replace_all(text, 
+                                &quot;https://t.co/[A-Za-z\\d]+|&amp;amp;&quot;, 
+                                &quot;&quot;)) %&gt;%
+  unnest_tokens(word, text, 
+                token = &quot;regex&quot;, 
+                pattern = reg) %&gt;%
+  filter(!word %in% stop_words$word,
+         str_detect(word, &quot;[a-z]&quot;))
+
+# Inspect the first six rows of tweet_words
+head(fb_words)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   status_id            source          created_at          word        
+##   &lt;chr&gt;                &lt;chr&gt;           &lt;dttm&gt;              &lt;chr&gt;       
+## 1 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 ramadan     
+## 2 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 mubarak     
+## 3 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 0001f319    
+## 4 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 #monthofgood
+## 5 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 check       
+## 6 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 kindness</code></pre>
+<pre class="r"><code>fb_words %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  head(20) %&gt;%
+  mutate(word = reorder(word, n)) %&gt;%
+  ggplot(aes(x = word, y = n)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  ylab(&quot;Occurrences&quot;) +
+  coord_flip()</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>tiktok_words %&gt;%
+  count(word, sort = TRUE) %&gt;%
+  head(20) %&gt;%
+  mutate(word = reorder(word, n)) %&gt;%
+  ggplot(aes(x = word, y = n)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  ylab(&quot;Occurrences&quot;) +
+  coord_flip()</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
+<pre class="r"><code>fb_sentiment &lt;-    
+ inner_join(fb_words, nrc, by = &quot;word&quot;) %&gt;% 
+            group_by(sentiment)  
+
+tiktok_sentiment &lt;-    
+ inner_join(tiktok_words, nrc, by = &quot;word&quot;) %&gt;% 
+            group_by(sentiment) 
+
+fb_words %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   status_id            source          created_at          word        
+##   &lt;chr&gt;                &lt;chr&gt;           &lt;dttm&gt;              &lt;chr&gt;       
+## 1 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 ramadan     
+## 2 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 mubarak     
+## 3 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 0001f319    
+## 4 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 #monthofgood
+## 5 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 check       
+## 6 x1382020080343470082 Twitter Web App 2021-04-13 17:17:18 kindness</code></pre>
+<p>Here we compare the sentiment between Facebook and TikTok. It looks like discussions surrounding Facebook uses more trust words while topics about TikTok uses more words that reflect anticipation.</p>
+<pre class="r"><code>fb_sentiment_analysis &lt;- fb_sentiment %&gt;% 
+  count(word, sentiment) %&gt;% 
+  group_by(sentiment)
+
+fb_sentiment_analysis %&gt;%  
+  top_n(15) %&gt;% 
+  ggplot(aes(x = sentiment, y = n )) +
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Sentiment&quot;) +
+  labs(title=&quot;Facebook Sentiment&quot;)</code></pre>
+<pre><code>## Selecting by n</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code>tiktok_sentiment_analysis &lt;- tiktok_sentiment %&gt;% 
+  count(word, sentiment) %&gt;% 
+  group_by(sentiment)
+
+tiktok_sentiment_analysis %&gt;%  
+  top_n(15) %&gt;% 
+  ggplot(aes(x = sentiment, y = n )) +
+  geom_bar(stat = &quot;identity&quot;) +
+  coord_flip() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Sentiment&quot;) +
+  labs(title=&quot;TikTok Sentiment&quot;)</code></pre>
+<pre><code>## Selecting by n</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<pre class="r"><code>fb_sentiment_analysis %&gt;% filter(!sentiment %in% c(&quot;positive&quot;, &quot;negative&quot;)) %&gt;% 
+  mutate(sentiment = reorder(sentiment, -n),
+         word = reorder(word, -n)) %&gt;% top_n(10) -&gt; fb_sentiment_analysis2</code></pre>
+<pre><code>## Selecting by n</code></pre>
+<pre class="r"><code>ggplot(fb_sentiment_analysis2, aes(x=word, y=n, fill = n)) +
+  facet_wrap(~ sentiment, scales = &quot;free&quot;)+ 
+  geom_bar(stat =&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  labs(y=&quot;count&quot;, title=&quot;Facebook Sentiment&quot;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code>tiktok_sentiment_analysis %&gt;% filter(!sentiment %in% c(&quot;positive&quot;, &quot;negative&quot;)) %&gt;% 
+  mutate(sentiment = reorder(sentiment, -n),
+         word = reorder(word, -n)) %&gt;% top_n(10) -&gt; tiktok_sentiment_analysis2</code></pre>
+<pre><code>## Selecting by n</code></pre>
+<pre class="r"><code>ggplot(tiktok_sentiment_analysis2, aes(x=word, y=n, fill = n)) +
+  facet_wrap(~ sentiment, scales = &quot;free&quot;)+ 
+  geom_bar(stat =&quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  labs(y=&quot;count&quot;, title=&quot;Tik Tok Sentiment&quot;)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-11-2.png" width="672" /> We also want to visualize common words on Facebook and Tiktok by wordccloud. The visual depiction indicates to us that “learn”, “center” and “report” are common words, with more secondary common words such as “secure” page“, and”visit" for Facebook account engagement. This could be that Facebook users tweet about account issues. Whereas, TikTok has “top”, “tomorrow”, and “prizes” as common words, and more secondary common words such as “winner,”nominating“, and”grand", indicating that the social media platform likes to promote competitions or giveaways, which makes sense given their younger demographics might enjoy these types of rewards and games.</p>
+<pre class="r"><code>facebook_cloud &lt;- fb_words  %&gt;% count(word) %&gt;% arrange(-n)
+wordcloud(facebook_cloud$word, facebook_cloud$n, max.words = 200, colors = c(&quot;#00B2FF&quot;, &quot;red&quot;, &quot;#FF0099&quot;, &quot;#6600CC&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;blue&quot;, &quot;brown&quot;))</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre class="r"><code>tiktok_cloud &lt;- tiktok_words  %&gt;% count(word) %&gt;% arrange(-n)
+wordcloud(tiktok_cloud$word, tiktok_cloud$n, max.words = 200, colors = c(&quot;#00B2FF&quot;, &quot;red&quot;, &quot;#FF0099&quot;, &quot;#6600CC&quot;, &quot;green&quot;, &quot;orange&quot;, &quot;blue&quot;, &quot;brown&quot;))</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-12-2.png" width="672" /></p>
+<p>Next, we examine texts on Facebook and Tiktok to see their positive-negative score by using afinn lexicon</p>
+<pre class="r"><code># run this to get afinn lexicon and save it as a csv
+# get_sentiments (&quot;afinn&quot;) -&gt; afinn
+#
+#afinn %&gt;% write_as_csv(&quot;afinn.csv&quot;)
+
+afinn &lt;- read_csv(&#39;afinn.csv&#39;)</code></pre>
+<pre class="r"><code>fb_afinn &lt;-    
+ inner_join(fb_words, afinn, by = &quot;word&quot;) 
+
+tiktok_afinn &lt;-    
+ inner_join(tiktok_words, afinn, by = &quot;word&quot;)
+
+fb_afinn %&gt;% summarise(mean_fb_afinn = mean(value))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_fb_afinn
+##           &lt;dbl&gt;
+## 1         0.785</code></pre>
+<pre class="r"><code>tiktok_afinn %&gt;% summarise(mean_tt_afinn = mean(value))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   mean_tt_afinn
+##           &lt;dbl&gt;
+## 1          1.70</code></pre>
+<p>Mean of Facebook’s afinn value is 0.79 while mean of Tiktok’s afinn value is 1.704293. In general, tweets from Tiktok are more positive than those on Facebook.</p>
+<p>Here, we predict the user based on the tweet length and number of words for each sentiment. TikTok is encoded as 1, and Facebook is encoded as 0.</p>
+<pre class="r"><code>fb_sentiment_counts &lt;- 
+  fb_sentiment %&gt;% 
+  group_by(status_id) %&gt;% 
+  count(sentiment) %&gt;% 
+  pivot_wider(id_cols = status_id, 
+              names_from = sentiment, 
+              values_from = n,
+              values_fill = 0)
+
+tiktok_sentiment_counts &lt;- 
+  tiktok_sentiment %&gt;% 
+  group_by(status_id) %&gt;% 
+  count(sentiment) %&gt;% 
+  pivot_wider(id_cols = status_id, 
+              names_from = sentiment, 
+              values_from = n,
+              values_fill = 0)
+
+tiktok_feature_selection &lt;- 
+  tiktok_wordcounts %&gt;% 
+  mutate(user = 1) %&gt;% 
+  left_join(tiktok_sentiment_counts, 
+            by=&quot;status_id&quot;)
+
+facebook_feature_selection &lt;-
+  fb_wordcounts %&gt;% 
+  mutate(user = 0) %&gt;% 
+  left_join(fb_sentiment_counts, 
+            by=&quot;status_id&quot;)
+
+both_users &lt;- 
+  tiktok_feature_selection %&gt;% 
+  rbind(facebook_feature_selection) %&gt;%
+  mutate_if(is.numeric,coalesce,0)
+
+set.seed(123)
+index &lt;- 
+  createDataPartition(both_users$user,
+                      p = 0.8, list = FALSE)
+
+for_decisiontree &lt;-
+  both_users %&gt;% select(-1,-2,-3,-4)
+
+train &lt;- for_decisiontree[index, ]
+test  &lt;- for_decisiontree[-index, ]
+
+simple_model &lt;- rpart(user ~ ., data = train, method = &quot;class&quot;)
+rpart.plot(simple_model, yesno = 2)</code></pre>
+<p><img src="HW9_Website_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>set.seed(123)
+bagging_model &lt;- train(
+  user ~ .,
+  data = train,
+  method = &quot;treebag&quot;,
+  trControl = trainControl(method = &quot;oob&quot;),
+  keepX = T,
+  nbagg = 100,
+  importance = &quot;impurity&quot;,
+  control = rpart.control(minsplit = 2, cp = 0)
+)
+
+n_features &lt;- length(setdiff(names(train), &quot;user&quot;))
+
+rf_model &lt;- ranger(
+  user ~ .,
+  data = train,
+  mtry = floor(n_features * 0.5),
+  respect.unordered.factors = &quot;order&quot;,
+  importance = &quot;permutation&quot;,
+  seed = 123
+)
+
+
+set.seed(123)  # for reproducibility
+gbm_model &lt;- gbm(
+  formula = user ~ .,
+  data = train,
+  distribution = &quot;gaussian&quot;,  # SSE loss function
+  n.trees = 1000,
+  shrinkage = 0.05,
+  interaction.depth = 5,
+  n.minobsinnode = 4,
+  cv.folds = 10
+)</code></pre>
+<pre class="r"><code>actual_train &lt;- train$user
+
+simple_pred_train &lt;- 
+  predict(simple_model, newdata = train) %&gt;% 
+  as_tibble() %&gt;% 
+  select(2) %&gt;% 
+  unlist() %&gt;% 
+  as.vector()
+rss_simple_train &lt;- sum((actual_train-simple_pred_train)^2)
+
+bagging_pred_train &lt;- 
+  predict(bagging_model, newdata = train) %&gt;% 
+  as.vector()
+rss_bagging_train &lt;- sum((actual_train-bagging_pred_train)^2)
+
+rf_pred_train &lt;- predict(rf_model, data = train, seed = 123, verbose = T)[1] %&gt;% unlist()
+rss_rf_train &lt;- sum((actual_train-rf_pred_train)^2)
+
+gb_pred_train &lt;- predict(gbm_model, newdata = train)</code></pre>
+<pre><code>## Using 826 trees...</code></pre>
+<pre class="r"><code>rss_gb_train &lt;- sum((actual_train-gb_pred_train)^2)
+
+cat(paste0(&quot;Residual Sum of Squares on Training Set\n&quot;,
+           &quot;\nSimple model: &quot;, rss_simple_train, 
+           &quot;\nBagged model: &quot;, rss_bagging_train, 
+           &quot;\nRandom forests model: &quot;, rss_rf_train, 
+           &quot;\nGradient boost model: &quot;, rss_gb_train))</code></pre>
+<pre><code>## Residual Sum of Squares on Training Set
+## 
+## Simple model: 728.594871547184
+## Bagged model: 233.196736344579
+## Random forests model: 343.089048108325
+## Gradient boost model: 484.09311916337</code></pre>
+<pre class="r"><code>actual_test &lt;- test$user
+
+simple_pred_test &lt;- 
+  predict(simple_model, newdata = test) %&gt;% 
+  as_tibble() %&gt;% 
+  select(2) %&gt;% 
+  unlist() %&gt;% 
+  as.vector()
+rss_simple_test &lt;- sum((actual_test-simple_pred_test)^2)
+
+bagging_pred_test &lt;- 
+  predict(bagging_model, newdata = test) %&gt;% 
+  as.vector()
+rss_bagging_test &lt;- sum((actual_test-bagging_pred_test)^2)
+
+rf_pred_test &lt;- predict(rf_model, data = test, seed = 123, verbose = T)[1] %&gt;% unlist() %&gt;% as.vector()
+rss_rf_test &lt;- sum((actual_test-rf_pred_test)^2)
+
+gb_pred_test &lt;- predict(gbm_model, newdata = test)</code></pre>
+<pre><code>## Using 826 trees...</code></pre>
+<pre class="r"><code>rss_gb_test &lt;- sum((actual_test-gb_pred_test)^2)
+
+cat(paste0(&quot;Residual Sum of Squares on Test Set\n&quot;,
+           &quot;\nSimple model: &quot;, rss_simple_test, 
+           &quot;\nBagged model: &quot;, rss_bagging_test, 
+           &quot;\nRandom forests model: &quot;, rss_rf_test, 
+           &quot;\nGradient boost model: &quot;, rss_gb_test))</code></pre>
+<pre><code>## Residual Sum of Squares on Test Set
+## 
+## Simple model: 175.391975607092
+## Bagged model: 170.061500301201
+## Random forests model: 146.952559929777
+## Gradient boost model: 151.839521942722</code></pre>
+<p>The random forests model performed the best on the test set even though it was only second best for the training set. However, that may be an indication that the bagging model was overfit, which caused it to perform much worse on the test set than the random forests model.</p>
+</div>
+<div id="evaluating-performance-confusion-matrices" class="section level2">
+<h2>Evaluating Performance: Confusion Matrices</h2>
+<p>Now, I produce confusion matrices for all tree-based methods—first evaluating their performance on the test set. Note again that a Tiktok tweet is encoded as 1, and a Facebook tweet is encoded as 0. The code is shown for the first matrix but not for subsequent ones for the sake of elegance.</p>
+<p><strong>Simple Model - Test Set:</strong></p>
+<pre class="r"><code>simple_test_confusion &lt;- 
+  confusionMatrix(data = factor(round(simple_pred_test)),
+                  reference = factor(actual_test), mode = &quot;prec_recall&quot;)
+
+simple_test_errors &lt;- 
+  simple_test_confusion$table[2] +
+  simple_test_confusion$table[3]
+
+simple_test_accuracy &lt;-
+  as.numeric(simple_test_confusion$overall[1])
+
+simple_test_confusion</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 557 144
+##          1  94 483
+##                                           
+##                Accuracy : 0.8138          
+##                  95% CI : (0.7913, 0.8348)
+##     No Information Rate : 0.5094          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.6269          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.001492        
+##                                           
+##               Precision : 0.7946          
+##                  Recall : 0.8556          
+##                      F1 : 0.8240          
+##              Prevalence : 0.5094          
+##          Detection Rate : 0.4358          
+##    Detection Prevalence : 0.5485          
+##       Balanced Accuracy : 0.8130          
+##                                           
+##        &#39;Positive&#39; Class : 0               
+## </code></pre>
+<p><strong>Bagging Model - Test Set:</strong></p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 525 119
+##          1 126 508
+##                                           
+##                Accuracy : 0.8083          
+##                  95% CI : (0.7856, 0.8295)
+##     No Information Rate : 0.5094          
+##     P-Value [Acc &gt; NIR] : &lt;2e-16          
+##                                           
+##                   Kappa : 0.6165          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.7015          
+##                                           
+##               Precision : 0.8152          
+##                  Recall : 0.8065          
+##                      F1 : 0.8108          
+##              Prevalence : 0.5094          
+##          Detection Rate : 0.4108          
+##    Detection Prevalence : 0.5039          
+##       Balanced Accuracy : 0.8083          
+##                                           
+##        &#39;Positive&#39; Class : 0               
+## </code></pre>
+<p><strong>Random Forests - Test Set:</strong></p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 558 119
+##          1  93 508
+##                                           
+##                Accuracy : 0.8341          
+##                  95% CI : (0.8126, 0.8541)
+##     No Information Rate : 0.5094          
+##     P-Value [Acc &gt; NIR] : &lt; 2e-16         
+##                                           
+##                   Kappa : 0.6679          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.08598         
+##                                           
+##               Precision : 0.8242          
+##                  Recall : 0.8571          
+##                      F1 : 0.8404          
+##              Prevalence : 0.5094          
+##          Detection Rate : 0.4366          
+##    Detection Prevalence : 0.5297          
+##       Balanced Accuracy : 0.8337          
+##                                           
+##        &#39;Positive&#39; Class : 0               
+## </code></pre>
+<p><strong>Gradient Boosting Model - Test Set:</strong></p>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 574 122
+##          1  77 505
+##                                           
+##                Accuracy : 0.8443          
+##                  95% CI : (0.8232, 0.8637)
+##     No Information Rate : 0.5094          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.6881          
+##                                           
+##  Mcnemar&#39;s Test P-Value : 0.001814        
+##                                           
+##               Precision : 0.8247          
+##                  Recall : 0.8817          
+##                      F1 : 0.8523          
+##              Prevalence : 0.5094          
+##          Detection Rate : 0.4491          
+##    Detection Prevalence : 0.5446          
+##       Balanced Accuracy : 0.8436          
+##                                           
+##        &#39;Positive&#39; Class : 0               
+## </code></pre>
+</div>
+<div id="iii.-results" class="section level2">
+<h2>III. Results</h2>
+<p>When testing the models on our test data sets, for the simple model we observed 81.38% accuracy, for the bagging model we observed 80.83% accuracy, for the random forest we observed 83.41% accuracy, and for the gradient boosting model we observed 84.43% accuracy. Another good metric to compare is balanced accuracy, which is the average of specificity and sensitivity. For the simple model, balanced accuracy is 81.3%. For the bagging model, balanced accuracy is 80.83%. For the random forest, balanced accuracy is 83.37%. For the gradient boosting model, balanced accuracy is 84.36%.</p>
+<p>Therefore, it seems that in terms of prediction accuracy, the rank of our 4 models is as follows:<br />
+1. Gradient Boosting Model<br />
+2. Random Forest<br />
+3. Simple Model<br />
+4. Bagging Model</p>
+<p>When analyzing the sum of squares difference between the actual tweeter and the predicted tweeter, the results were as follows:</p>
+<p>Simple model: 175.391975607092<br />
+Bagged model: 170.061500301201<br />
+Random forests model: 146.952559929777<br />
+Gradient boost model: 151.839521942722</p>
+<p>In all, these results show us that the best model is a toss up between the Random Forest Model and the Gradient Boosting Model.</p>
+</div>
+<div id="iv.-conclusion" class="section level2">
+<h2>IV. Conclusion</h2>
+<p>Looking at the analyses, it seems that the Facebook and TikTok account and users tweet about these two social media platforms for different reasons. People tweeting about Facebook are likely to be reporting their account issues, which are associated with words such as “secure” and “trust.” Whereas, people tweeting about TikTok seem to be participating in prize giveaways, which is associated with “anticipation” words such as “winning” and “tomorrow.” Overall, these analyses mak</p>
 </div>
 
 
