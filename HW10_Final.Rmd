@@ -1,0 +1,392 @@
+---
+title: "HW10"
+author: "Ryan Karbowicz"
+date: "5/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+The options for each name are the following:
+
+1. I have texted in the last 7 days
+
+2. I have met during my time in MBDS
+
+3. Is my friend
+
+4. I ask for advice/help
+
+5. Asks me for help/advice
+
+Options for the introversion question:
+
+1. Introverted
+
+2. Middle ground
+
+3. Extraverted
+
+```{r}
+# Load packages and an xls file
+library(readxl)
+library(network)
+library(igraph) 
+library(tidyverse)
+hw10<- read_excel("hw10.xlsx")
+node<- read_excel("hw10.xlsx", skip = 1)
+colnames(node) <- c("ID", 1:40, "trait") 
+
+```
+
+
+## 1. Prepare the data for the network analysis (create a separate edge and node list)
+
+```{r}
+#create the edge list
+edge_prep <- node %>% pivot_longer(col = -c(ID, trait), names_to = "in-tie", values_to = "value") %>% 
+  rename (`out-tie` = ID) 
+  
+edgelist <- separate_rows(edge_prep, value, sep =",") %>% 
+  rename (`tie-type` = value)
+as.character(edgelist$`tie-type`)
+edgelist$`tie-type`[is.na(edgelist$`tie-type`)] = 0 #NA values for tie-type to 0  
+edgelist <- na.omit(edgelist)
+edgelist <- edgelist %>%
+  arrange(`out-tie`) %>% 
+  filter(`out-tie` != `in-tie`)
+##there are 3 variables in the edge list: out-tie, in-tie, and tie.
+#creating nodelist
+inclass <- subset(node, select = -c(2:41) )
+inclass <- na.omit(inclass)
+absent_people <- tibble (ID= c(3,4,8,9,10,11,12,13,14,16,19,21,22,25,26,27,29,37,39), trait = NA) #people who didnt take the survey 
+nodelist <-rbind (inclass, absent_people) %>% arrange(`ID`) #combine  people took the survey and people didn't take the survey
+
+edgelist
+nodelist
+```
+
+## 2. Calculate measures of centrality and similarity in networks depending on the type of tie? Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?
+
+Looking at the information centrality, tie type 4 (I ask for advice/help) has the greatest centralization while tie type 5 (Asks me for help/advice). Betweenness is also another measure of centrality which shows us how well-connected the parts are. In terms of betweenness, tie type 3 (Is my friend ) ranks the highest and tie type 2 (I have met during my time in MBDS) is the lowest.  Likewise, tie type 3 also ranks the highest for reciprocity, though tie type 4 ranks the lowest. As for closeness, tie type 2 ranks the closest and tie type 3 is the least closest.
+
+Tie type 1 (I have texted in the last 7 days) generates the most similar network in terms of introversion, while tie type 3 generates the most dissimilar.
+
+```{r}
+classnormsnet <- network(edgelist, vertex.attr = nodelist, matrix.type = "edgelist", ignore.eval = FALSE)
+summary(classnormsnet)
+plot(classnormsnet, vertex.cex = 1) # very dense 
+plot(classnormsnet, vertex.cex = 3)
+# graphing the network
+network_class <- graph_from_data_frame(d = edgelist, vertices = nodelist, directed = TRUE)
+plot(network_class, edge.arrow.size = 0.1, vertex.size = 3)
+plot(network_class, edge.arrow.size = 0.1, vertex.size = 6)
+```
+
+**Edgelist based on Tie-Type**
+```{r}
+# edgelist based on tie-type, nodelist based on trait
+edgelist1 <- edgelist %>% filter(`tie-type` == 1)
+edgelist2 <- edgelist %>% filter(`tie-type` == 2)
+edgelist3 <- edgelist %>% filter(`tie-type` == 3)
+edgelist4 <- edgelist %>% filter(`tie-type` == 4)
+edgelist5 <- edgelist %>% filter(`tie-type` == 5)
+
+network_class_tietype1 <- graph_from_data_frame(d = edgelist1, vertices = nodelist, directed = TRUE)
+network_class_tietype2 <- graph_from_data_frame(d = edgelist2, vertices = nodelist, directed = TRUE)
+network_class_tietype3 <- graph_from_data_frame(d = edgelist3, vertices = nodelist, directed = TRUE)
+network_class_tietype4 <- graph_from_data_frame(d = edgelist4, vertices = nodelist, directed = TRUE)
+network_class_tietype5 <- graph_from_data_frame(d = edgelist5, vertices = nodelist, directed = TRUE)
+```
+
+
+
+**Density** 
+Density is the number of ties relative to the number of possible ties  
+
+From greatest to least, the rank of tie types in terms of density is as follows:  
+
+1. I ask for advice/help (tie type 4)
+
+2. I have texted in the last 7 days  (tie type 1)
+
+3. I have met during my time in MBDS (tie type 2)
+
+4. Is my friend (tie type 3)
+
+5. Asks me for help/advice (tie type 5)
+
+
+
+```{r}
+# density based on tie type 
+edge_density(network_class_tietype1, loops = F)
+edge_density(network_class_tietype2, loops = F)
+edge_density(network_class_tietype3, loops = F)
+edge_density(network_class_tietype4, loops = F)
+edge_density(network_class_tietype5, loops = F)
+```
+
+**Reciprocity**
+
+From greatest to least, the rank of tie types in terms of reciprocity is as follows:   
+
+1. Is my friend (tie type 3)
+
+2. I have met during my time in MBDS (tie type 2)
+
+3. I have texted in the last 7 days (tie type 1)
+
+4. Asks me for help/advice (tie type 5)
+
+5. I ask for advice/help (tie type 4)
+
+```{r}
+#reciprocity
+reciprocity(network_class_tietype1)
+reciprocity(network_class_tietype2)
+reciprocity(network_class_tietype3)
+reciprocity(network_class_tietype4)
+reciprocity(network_class_tietype5)
+```
+
+**Transitivity**  
+
+From greatest to least, the rank of tie types in terms of transitivty is as follows: 
+
+1. I have met during my time in MBDS (tie type 2)
+
+2. Is my friend (tie type 3)
+
+3. I ask for advice/help (tie type 4)
+
+4. I have texted in the last 7 days (tie type 1)
+
+5. Asks me for help/advice (tie type 5)
+
+```{r}
+# transitivity
+transitivity(network_class_tietype1, type="global")
+transitivity(network_class_tietype2, type="global")
+transitivity(network_class_tietype3, type="global")
+transitivity(network_class_tietype4, type="global")
+transitivity(network_class_tietype5, type="global")
+```
+
+**Diameter**  
+
+The following tie types have a diameter of 5:  
+
+1. I have texted in the last 7 days (tie type 1)
+
+2. I have met during my time in MBDS (tie type 2)
+
+3. Is my friend (tie type 3)
+
+The following tie types have a diameter of 4:  
+
+4. I ask for advice/help (tie type 4)
+
+5. Asks me for help/advice  (tie type 5)
+
+```{r}
+# Diameter
+diameter(network_class_tietype1, directed=F, weights=NA)
+diameter(network_class_tietype2, directed=F, weights=NA)
+diameter(network_class_tietype3, directed=F, weights=NA)
+diameter(network_class_tietype4, directed=F, weights=NA)
+diameter(network_class_tietype5, directed=F, weights=NA)
+```
+
+
+**Closeness**
+
+Closeness measures how close people are to everyone else  
+
+From closest to least close, the rank of tie types is as follows:   
+
+1. I have met during my time in MBDS (tie type 2)
+
+2. I ask for advice/help (tie type 4)
+
+3. I have texted in the last 7 days (tie type 1)
+
+4. Asks me for help/advice (tie type 5)
+
+5. Is my friend (tie type 3)
+
+
+
+```{r}
+#calculating closeness
+mean(closeness(network_class_tietype1, mode="all", weights=NA))
+mean(closeness(network_class_tietype2, mode="all", weights=NA))
+mean(closeness(network_class_tietype3, mode="all", weights=NA))
+mean(closeness(network_class_tietype4, mode="all", weights=NA))
+mean(closeness(network_class_tietype5, mode="all", weights=NA))
+```
+
+
+**Betweenness**  
+
+Betweenness is the shortest paths between nodes that go through a given node  
+
+From most betweenness to least betweenness, the rank of ties in terms of betweenness is as follows:  
+
+1. Is my friend   (tie type 3)
+
+2. I ask for advice/help  (tie type 4)
+
+3. Asks me for help/advice  (tie type 5)
+
+4. I have texted in the last 7 days  (tie type 1)
+
+5. I have met during my time in MBDS  (tie type 2)
+
+
+
+```{r}
+mean(betweenness(network_class_tietype1, directed=F, weights=NA))
+mean(betweenness(network_class_tietype2, directed=F, weights=NA))
+mean(betweenness(network_class_tietype3, directed=F, weights=NA))
+mean(betweenness(network_class_tietype4, directed=F, weights=NA))
+mean(betweenness(network_class_tietype5, directed=F, weights=NA))
+```
+
+**Degree**  
+
+Degree looks at the number of ties in a network  
+
+From greatest to least, the rank of tie types in terms of degree is as follows: 
+
+1. I ask for advice/help  (tie type 4)
+
+2. I have texted in the last 7 days  (tie type 1)
+
+3. I have met during my time in MBDS  (tie type 2)
+
+4. Is my friend  (tie type 3)
+
+5. Asks me for help/advice  (tie type 5)
+
+```{r}
+mean(degree(network_class_tietype1, mode="all"))
+mean(degree(network_class_tietype2, mode="all"))
+mean(degree(network_class_tietype3, mode="all"))
+mean(degree(network_class_tietype4, mode="all"))
+mean(degree(network_class_tietype5, mode="all"))
+```
+
+
+**Centrality Degree**
+
+Information Centrality is the number of all paths between nodes that go through a given node
+
+From greatest centralization to least centralization, the rank of tie types is as follows:
+
+1. I ask for advice/help (tie type 4)
+
+2. I have met during my time in MBDS (tie type 2)
+
+3. Is my friend (tie type 3)
+
+4. I have texted in the last 7 days (tie type 1)
+
+5. Asks me for help/advice (tie type 5)
+
+```{r}
+centr_degree(network_class_tietype1, mode="in", normalized=T)
+centr_degree(network_class_tietype2, mode="in", normalized=T)
+centr_degree(network_class_tietype3, mode="in", normalized=T)
+centr_degree(network_class_tietype4, mode="in", normalized=T)
+centr_degree(network_class_tietype5, mode="in", normalized=T)
+```
+
+
+**Mean Distance**
+
+The mean distance between nodes, in order from least to greatest, is as follows:  
+
+1. Is my friend  (tie type 3)
+
+2. I ask for advice/help  (tie type 4)
+
+3. I have met during my time in MBDS  (tie type 2)
+
+4. I have texted in the last 7 days (tie type 1)
+
+5. Asks me for help/advice  (tie type 5)
+
+```{r}
+mean_distance(network_class_tietype1, directed=T)
+mean_distance(network_class_tietype2, directed=T)
+mean_distance(network_class_tietype3, directed=T)
+mean_distance(network_class_tietype4, directed=T)
+mean_distance(network_class_tietype5, directed=T)
+```
+
+
+
+### Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?
+
+In terms of introversion:
+
+**Most similar network:** "I have texted in the last 7 days"  
+
+**Most dissimilar network:** "Is my friend"  
+
+```{r}
+node <- nodelist
+node[is.na(node)] <- -1
+net <- graph_from_data_frame(d = edgelist, vertices = node, directed = TRUE)
+net1 <- graph_from_data_frame(d = edgelist1, vertices = node, directed = TRUE)
+net2 <- graph_from_data_frame(d = edgelist2, vertices = node, directed = TRUE)
+net3 <- graph_from_data_frame(d = edgelist3, vertices = node, directed = TRUE)
+net4 <- graph_from_data_frame(d = edgelist4, vertices = node, directed = TRUE)
+net5 <- graph_from_data_frame(d = edgelist5, vertices = node, directed = TRUE)
+#filter edgelist for all 5 tie types...then calculate this measure for 5 networks and see which is most similar / dissimialr 
+#Similarity
+assortativity(net1, V(net1)$trait, directed=T)
+assortativity(net2, V(net2)$trait, directed=T)
+assortativity(net3, V(net3)$trait, directed=T)
+assortativity(net4, V(net4)$trait, directed=T)
+assortativity(net5, V(net5)$trait, directed=T)
+```
+
+## 3 Do introverts tend to be at the periphery while extraverts are in the center of the network? Motivate.
+
+We use both a decision tree and regression to examine if introverts tend to be at the periphery while extraverts are in the center of the network. The input is the trait (level of introvert/extravert) and the output is the degree/betweenness. 
+
+Both the decision tree models are unable to predict any patterns. The regression model also does not show any significances. We suspect that the small sample size is our limitation. We conclude that trait (introvert/extravert) does not predict where introverts and extraverts are in the network. 
+
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(caret)
+
+#decision tree: betweenness and trait
+tree_bt <- nodelist %>% mutate (between = betweenness(network_class, directed=F, weights=NA))
+model_tree_bt <- rpart(between ~ as.factor(trait), method = "anova", data = tree_bt, cp = 0.00001) 
+rpart.plot(model_tree_bt)
+
+#decision tree: degree and trait
+tree_dg <- nodelist %>% mutate (degree = degree(network_class, mode="in"))
+model_tree_dg <- rpart(degree ~ as.factor(trait), method = "anova", data = tree_dg, cp = 0.00001) 
+rpart.plot(model_tree_dg)
+
+#regression: bewteenness and trait
+summary(lm(between ~ as.factor(trait), data = tree_bt))
+```
+
+## Contributions
+
+Q1: Kim Nguyen  
+Q2: Ryan Karbowicz & Ammar Plumber  
+Q3: Elaina Lin & Meghan Aines  
+
+
+
