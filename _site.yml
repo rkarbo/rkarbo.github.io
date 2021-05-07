@@ -12,7 +12,7 @@ navbar:
     - text: "HW9"
       href: HW9_Website.html
     - text: "HW10"
-      href: HW10_Final.html
+      href: HW10_Website.html
 output:
   html_document:
     theme: simplex
