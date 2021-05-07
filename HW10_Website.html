@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ryan Karbowicz" />
+
+
+<title>HW10_Website</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="site_libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 41px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h2 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h3 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h4 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h5 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h6 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Ryan Karbowicz</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="project.html">Project</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="HW9_Website.html">HW9</a>
+</li>
+<li>
+  <a href="HW10_Final.html">HW10</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">HW10_Website</h1>
+<h4 class="author">Ryan Karbowicz</h4>
+<h4 class="date">5/7/2021</h4>
+
+</div>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Here, we conduct a network analysis of our class (BDS 516: Spring 2021). The data we use was obtained in a survey which asks each class member about their interactions with other class members.</p>
+<p>People may select from a list of options for each name.</p>
+<p>The options for each name are as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>I have texted in the last 7 days</p></li>
+<li><p>I have met during my time in MBDS</p></li>
+<li><p>Is my friend</p></li>
+<li><p>I ask for advice/help</p></li>
+<li><p>Asks me for help/advice</p></li>
+</ol>
+<p>There is also a question that asks about one’s own degree of introversion. The options are as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>Introverted</p></li>
+<li><p>Middle ground</p></li>
+<li><p>Extroverted</p></li>
+</ol>
+<p>There are 22 people in our sample. Using this data, we examine a number of questions. First, we wish to measure the centrality of the class; the extent to which there are a small number of people around whom the social network is consolidated. Second, we want to know whether introverts tend towards the periphery of these networks and extroverts toward the center.</p>
+</div>
+<div id="analysis" class="section level1">
+<h1>Analysis</h1>
+<p>We load all non-native packages and the Excel spreadsheet as a dataframe.</p>
+<pre class="r"><code>library(readxl)
+library(network)
+library(igraph) 
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(caret)
+library(htmltools)
+library(kableExtra)
+hw10&lt;- read_excel(&quot;hw10.xlsx&quot;)
+node&lt;- read_excel(&quot;hw10.xlsx&quot;, skip = 1)
+colnames(node) &lt;- c(&quot;ID&quot;, 1:40, &quot;trait&quot;) </code></pre>
+<div id="prepare-the-data-for-the-network-analysis-create-a-separate-edge-and-node-list" class="section level3">
+<h3>1. Prepare the data for the network analysis (create a separate edge and node list)</h3>
+<pre class="r"><code>#create the edge list
+edge_prep &lt;- node %&gt;% pivot_longer(col = -c(ID, trait), names_to = &quot;in-tie&quot;, values_to = &quot;value&quot;) %&gt;% 
+  rename (`out-tie` = ID) 
+  
+edgelist &lt;- separate_rows(edge_prep, value, sep =&quot;,&quot;) %&gt;% 
+  rename (`tie-type` = value)
+as.character(edgelist$`tie-type`)
+edgelist$`tie-type`[is.na(edgelist$`tie-type`)] = 0 #NA values for tie-type to 0  
+edgelist &lt;- na.omit(edgelist)
+edgelist &lt;- edgelist %&gt;%
+  arrange(`out-tie`) %&gt;% 
+  filter(`out-tie` != `in-tie`)
+##there are 3 variables in the edge list: out-tie, in-tie, and tie.
+#creating nodelist
+inclass &lt;- subset(node, select = -c(2:41) )
+inclass &lt;- na.omit(inclass)
+absent_people &lt;- tibble (ID= c(3,4,8,9,10,11,12,13,14,16,19,21,22,25,26,27,29,37,39), trait = NA) #people who didnt take the survey 
+nodelist &lt;-rbind (inclass, absent_people) %&gt;% arrange(`ID`) #combine  people took the survey and people didn&#39;t take the survey
+
+#edgelist head
+edgelist %&gt;% head()
+#nodelist head
+nodelist %&gt;% head()</code></pre>
+</div>
+<div id="calculate-measures-of-centrality-and-similarity-in-networks-depending-on-the-type-of-tie-which-tie-type-generates-the-most-similar-network-in-terms-of-introversion-which-tie-type-is-the-most-dissimilar" class="section level3">
+<h3>2. Calculate measures of centrality and similarity in networks depending on the type of tie? Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?</h3>
+<p>Looking at the information centrality, tie type 4 (I ask for advice/help) has the greatest centralization while tie type 5 (Asks me for help/advice). Between-ness is also another measure of centrality that shows us how well-connected the parts are. In terms of between-ness, tie type 3 (Is my friend ) ranks the highest and tie type 2 (I have met during my time in MBDS) is the lowest. Likewise, tie type 3 also ranks the highest for reciprocity, though tie type 4 ranks the lowest. As for closeness, tie type 2 ranks the closest and tie type 3 is the least closest.</p>
+<p>Tie type 1 (I have texted in the last 7 days) generates the most similar network in terms of introversion, while tie type 3 generates the most dissimilar.</p>
+<pre class="r"><code>classnormsnet &lt;- network(edgelist, vertex.attr = nodelist, matrix.type = &quot;edgelist&quot;, ignore.eval = FALSE)
+cat(head(capture.output(print(summary(classnormsnet))), 44), sep=&quot;\n&quot;)</code></pre>
+<pre><code>## Network attributes:
+##   vertices = 40
+##   directed = TRUE
+##   hyper = FALSE
+##   loops = FALSE
+##   multiple = FALSE
+##   bipartite = FALSE
+##  total edges = 1246 
+##    missing edges = 0 
+##    non-missing edges = 1246 
+##  density = 0.7987179 
+## 
+## Vertex attributes:
+## 
+##  ID:
+##    numeric valued attribute
+##    attribute summary:
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    1.00   10.75   20.50   20.50   30.25   40.00 
+## 
+##  trait:
+##    numeric valued attribute
+##    attribute summary:
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA&#39;s 
+##       1       2       2       2       2       3      19 
+##   vertex.names:
+##    character valued attribute
+##    40 valid vertex names
+## 
+## Edge attributes:
+## 
+##  in-tie:
+##    character valued attribute
+##    attribute summary:
+##    the 10 most common values are:
+## 18  5  6 28  2 31 29 22 19 34 
+## 53 50 48 47 44 43 42 41 38 38 
+## 
+##  tie-type:
+##    character valued attribute
+##    attribute summary:
+##   0   1   2   3   4   5 
+## 551 143 133 131 176 112</code></pre>
+<pre class="r"><code>plot(classnormsnet, vertex.cex = 1) # very dense </code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>plot(classnormsnet, vertex.cex = 3)</code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code># graphing the network
+network_class &lt;- graph_from_data_frame(d = edgelist, vertices = nodelist, directed = TRUE)
+plot(network_class, edge.arrow.size = 0.1, vertex.size = 3)</code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<pre class="r"><code>plot(network_class, edge.arrow.size = 0.1, vertex.size = 6)</code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-3-4.png" width="672" /></p>
+<p><strong>Edgelist based on Tie-Type</strong></p>
+<pre class="r"><code># edgelist based on tie-type, nodelist based on trait
+edgelist1 &lt;- edgelist %&gt;% filter(`tie-type` == 1)
+edgelist2 &lt;- edgelist %&gt;% filter(`tie-type` == 2)
+edgelist3 &lt;- edgelist %&gt;% filter(`tie-type` == 3)
+edgelist4 &lt;- edgelist %&gt;% filter(`tie-type` == 4)
+edgelist5 &lt;- edgelist %&gt;% filter(`tie-type` == 5)
+
+network_class_tietype1 &lt;- graph_from_data_frame(d = edgelist1, vertices = nodelist, directed = TRUE)
+network_class_tietype2 &lt;- graph_from_data_frame(d = edgelist2, vertices = nodelist, directed = TRUE)
+network_class_tietype3 &lt;- graph_from_data_frame(d = edgelist3, vertices = nodelist, directed = TRUE)
+network_class_tietype4 &lt;- graph_from_data_frame(d = edgelist4, vertices = nodelist, directed = TRUE)
+network_class_tietype5 &lt;- graph_from_data_frame(d = edgelist5, vertices = nodelist, directed = TRUE)</code></pre>
+<p><strong>Density</strong> Density is the number of ties relative to the number of possible ties</p>
+<p>From greatest to least, the rank of tie types in terms of density is as follows:</p>
+<pre class="r"><code>types &lt;- 
+  c(&quot;Type 1&quot;, &quot;Type 2&quot;, &quot;Type 3&quot;, &quot;Type 4&quot;, &quot;Type 5&quot;)
+contents &lt;- 
+  c(&quot;I have texted in the last 7 days&quot;,&quot;I have met during my time in MBDS&quot;,&quot;Is my friend&quot;,&quot;I ask for advice/help&quot;,&quot;Asks me for help/advice&quot;)
+
+cbind(types, contents) %&gt;% 
+  as.data.frame() -&gt; initial
+
+# density based on tie type 
+round(c(edge_density(network_class_tietype1, loops = F),
+        edge_density(network_class_tietype2, loops = F),
+        edge_density(network_class_tietype3, loops = F),
+        edge_density(network_class_tietype4, loops = F),
+        edge_density(network_class_tietype5, loops = F)), 2) -&gt;
+  densityvals
+
+initial %&gt;% 
+  cbind(densityvals) %&gt;% arrange(desc(densityvals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> densityvals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 0.11 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 0.09 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 0.08 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 0.07 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Diameter</strong></p>
+<pre class="r"><code># Diameter
+round(c(diameter(network_class_tietype1, directed=F, weights=NA),
+        diameter(network_class_tietype2, directed=F, weights=NA),
+        diameter(network_class_tietype3, directed=F, weights=NA),
+        diameter(network_class_tietype4, directed=F, weights=NA),
+        diameter(network_class_tietype5, directed=F, weights=NA)), 2) -&gt;
+  diametervals
+
+initial %&gt;% cbind(diametervals) %&gt;% arrange(desc(diametervals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> diametervals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 3 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Closeness</strong></p>
+<p>Closeness measures how close people are to everyone else. We multiply the values obtained by 1000 so that fewer digits can be displayed in our table. We show the types in order of closest to least close.</p>
+<pre class="r"><code>#calculating closeness
+round(c(mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA)),
+        mean(closeness(network_class_tietype2, mode=&quot;all&quot;, weights=NA)),
+        mean(closeness(network_class_tietype3, mode=&quot;all&quot;, weights=NA)),
+        mean(closeness(network_class_tietype4, mode=&quot;all&quot;, weights=NA)),
+        mean(closeness(network_class_tietype5, mode=&quot;all&quot;, weights=NA))), 7)*1000 -&gt;
+  closenessvals
+
+initial %&gt;% cbind(closenessvals) %&gt;% arrange(desc(closenessvals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> closenessvals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 0.9560 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 0.9560 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 0.9131 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 0.8753 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 0.7702 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Betweenness</strong></p>
+<p>Betweenness is the shortest paths between nodes that go through a given node</p>
+<p>From most betweenness to least betweenness, the rank of ties in terms of betweenness is as follows:</p>
+<pre class="r"><code>round(c(mean(betweenness(network_class_tietype1, directed=F, weights=NA)),
+        mean(betweenness(network_class_tietype2, directed=F, weights=NA)),
+        mean(betweenness(network_class_tietype3, directed=F, weights=NA)),
+        mean(betweenness(network_class_tietype4, directed=F, weights=NA)),
+        mean(betweenness(network_class_tietype5, directed=F, weights=NA))), 2) -&gt;
+  betweennessvals
+
+initial %&gt;% cbind(betweennessvals) %&gt;% arrange(desc(betweennessvals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> betweennessvals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 6.80 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 6.80 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 6.20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 5.63 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 2.90 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Degree</strong></p>
+<p>Degree looks at the number of ties in a network</p>
+<p>From greatest to least, the rank of tie types in terms of degree is as follows:</p>
+<pre class="r"><code>round(c(mean(degree(network_class_tietype1, mode=&quot;all&quot;)),
+        mean(degree(network_class_tietype2, mode=&quot;all&quot;)),
+        mean(degree(network_class_tietype3, mode=&quot;all&quot;)),
+        mean(degree(network_class_tietype4, mode=&quot;all&quot;)),
+        mean(degree(network_class_tietype5, mode=&quot;all&quot;))), 2) -&gt;
+  degreevals
+
+initial %&gt;% cbind(degreevals) %&gt;% arrange(desc(degreevals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> degreevals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 8.80 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 7.15 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 6.65 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 6.55 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 5.60 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Centrality Degree</strong></p>
+<p>Information Centrality is the number of all paths between nodes that go through a given node</p>
+<p>From greatest centralization to least centralization, the rank of tie types is as follows:</p>
+<pre class="r"><code>round(c(centr_degree(network_class_tietype1, mode=&quot;in&quot;, normalized=T)$centralization,
+        centr_degree(network_class_tietype2, mode=&quot;in&quot;, normalized=T)$centralization,
+        centr_degree(network_class_tietype3, mode=&quot;in&quot;, normalized=T)$centralization,
+        centr_degree(network_class_tietype4, mode=&quot;in&quot;, normalized=T)$centralization,
+        centr_degree(network_class_tietype5, mode=&quot;in&quot;, normalized=T)$centralization), 2) -&gt;
+  centr_vals
+
+initial %&gt;% cbind(centr_vals) %&gt;% arrange(desc(centr_vals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> centr_vals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 2.91 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 2.37 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 2.07 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 1.89 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 1.72 </td>
+  </tr>
+</tbody>
+</table>
+<p><strong>Mean Distance</strong></p>
+<p>The mean distance between nodes, in order from least to greatest, is as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>Is my friend (tie type 3)</p></li>
+<li><p>I ask for advice/help (tie type 4)</p></li>
+<li><p>I have met during my time in MBDS (tie type 2)</p></li>
+<li><p>I have texted in the last 7 days (tie type 1)</p></li>
+<li><p>Asks me for help/advice (tie type 5)</p></li>
+</ol>
+<pre class="r"><code>round(c(mean_distance(network_class_tietype1, directed=T),
+        mean_distance(network_class_tietype2, directed=T),
+        mean_distance(network_class_tietype3, directed=T),
+        mean_distance(network_class_tietype4, directed=T),
+        mean_distance(network_class_tietype5, directed=T)), 3) -&gt;
+  mean_distances
+
+initial %&gt;% cbind(mean_distances) %&gt;% arrange(desc(mean_distances)) %&gt;% 
+  kbl(booktabs = T) %&gt;% 
+  kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> mean_distances </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> 1.583 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> 1.579 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> 1.575 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> 1.575 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> 1.393 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+<div id="which-tie-type-generates-the-most-similar-network-in-terms-of-introversion-which-tie-type-is-the-most-dissimilar" class="section level3">
+<h3>Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?</h3>
+<p>In terms of introversion:</p>
+<p><strong>Most similar network:</strong> “I have texted in the last 7 days”</p>
+<p><strong>Most dissimilar network:</strong> “I have met during my time in MBDS”</p>
+<pre class="r"><code>node &lt;- nodelist
+node[is.na(node)] &lt;- -1
+net &lt;- graph_from_data_frame(d = edgelist, vertices = node, directed = TRUE)
+net1 &lt;- graph_from_data_frame(d = edgelist1, vertices = node, directed = TRUE)
+net2 &lt;- graph_from_data_frame(d = edgelist2, vertices = node, directed = TRUE)
+net3 &lt;- graph_from_data_frame(d = edgelist3, vertices = node, directed = TRUE)
+net4 &lt;- graph_from_data_frame(d = edgelist4, vertices = node, directed = TRUE)
+net5 &lt;- graph_from_data_frame(d = edgelist5, vertices = node, directed = TRUE)
+#filter edgelist for all 5 tie types...then calculate this measure for 5 networks and see which is most similar / dissimialr 
+#Similarity
+round(c(assortativity(net1, V(net1)$trait, directed=T),
+        assortativity(net2, V(net2)$trait, directed=T),
+        assortativity(net3, V(net3)$trait, directed=T),
+        assortativity(net4, V(net4)$trait, directed=T),
+        assortativity(net5, V(net5)$trait, directed=T)),3) -&gt;
+  assortativity_vals
+
+initial %&gt;% cbind(assortativity_vals) %&gt;% arrange(desc(assortativity_vals)) %&gt;% 
+  kbl(booktabs = T) %&gt;% kable_styling() %&gt;% HTML()</code></pre>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> types </th>
+   <th style="text-align:left;"> contents </th>
+   <th style="text-align:right;"> assortativity_vals </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Type 1 </td>
+   <td style="text-align:left;"> I have texted in the last 7 days </td>
+   <td style="text-align:right;"> -0.582 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 5 </td>
+   <td style="text-align:left;"> Asks me for help/advice </td>
+   <td style="text-align:right;"> -0.605 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 4 </td>
+   <td style="text-align:left;"> I ask for advice/help </td>
+   <td style="text-align:right;"> -0.620 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 3 </td>
+   <td style="text-align:left;"> Is my friend </td>
+   <td style="text-align:right;"> -0.657 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Type 2 </td>
+   <td style="text-align:left;"> I have met during my time in MBDS </td>
+   <td style="text-align:right;"> -0.669 </td>
+  </tr>
+</tbody>
+</table>
+</div>
+<div id="do-introverts-tend-to-be-at-the-periphery-while-extraverts-are-in-the-center-of-the-network-motivate." class="section level3">
+<h3>3. Do introverts tend to be at the periphery while extraverts are in the center of the network? Motivate.</h3>
+<p>We use both a decision tree and regression to examine if introverts tend to be at the periphery while extraverts are in the center of the network. The input is the trait (level of introvert/extravert) and the output is the degree/betweenness.</p>
+<p>Both the decision tree models are unable to predict any patterns. The regression model also does not show any significance. We suspect that the small sample size is our limitation. We conclude that trait introversion/extroversion does not predict where introverts and extroverts are in the network.</p>
+<pre class="r"><code>#decision tree: betweenness and trait
+tree_bt &lt;- nodelist %&gt;% mutate (between = betweenness(network_class, directed=F, weights=NA))
+model_tree_bt &lt;- rpart(between ~ as.factor(trait), method = &quot;anova&quot;, data = tree_bt, cp = 0.00001) 
+rpart.plot(model_tree_bt)</code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<pre class="r"><code>#decision tree: degree and trait
+tree_dg &lt;- nodelist %&gt;% mutate (degree = degree(network_class, mode=&quot;in&quot;))
+model_tree_dg &lt;- rpart(degree ~ as.factor(trait), method = &quot;anova&quot;, data = tree_dg, cp = 0.00001) 
+rpart.plot(model_tree_dg)</code></pre>
+<p><img src="HW10_Website_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
+<pre class="r"><code>#regression: bewteenness and trait
+summary(lm(between ~ as.factor(trait), data = tree_bt))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = between ~ as.factor(trait), data = tree_bt)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -67.0   -3.8   -3.8   -3.8  134.0 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)       2.868e-14  2.356e+01   0.000   1.0000  
+## as.factor(trait)2 3.800e+00  2.581e+01   0.147   0.8846  
+## as.factor(trait)3 6.700e+01  3.331e+01   2.011   0.0595 .
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 40.8 on 18 degrees of freedom
+##   (19 observations deleted due to missingness)
+## Multiple R-squared:  0.2597, Adjusted R-squared:  0.1775 
+## F-statistic: 3.158 on 2 and 18 DF,  p-value: 0.06676</code></pre>
+</div>
+</div>
+<div id="discussion-and-conclusion" class="section level1">
+<h1>Discussion and Conclusion</h1>
+<p>We found that in this class there are certain people who are very socially connected—some more central than others—and others who are entirely socially disconnected from others in this class. Those who were most likely to ask others for advice/help, texted others recently, and considers those they communicate with to be friends are the most socially connected, and those who tend to be asked for advice are near the outskirts by all available measures.</p>
+<p>The ties that are most similar in terms of introversion/extroversion are those that involved texting in the past seven days, and those that are the most dissimilar were those that indicated having met through the MBDS program.</p>
+<p>Using the two methods we employed (decision tree and linear regression), we didn’t find a statistically significant relationship between being introverted and being at the exterior/periphery of the network.</p>
+</div>
+<div id="contributions" class="section level1">
+<h1>Contributions</h1>
+<p>Q1: Kim Nguyen</p>
+<p>Q2: Ryan Karbowicz &amp; Ammar Plumber</p>
+<p>Q3: Elaina Lin &amp; Meghan Aines</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
