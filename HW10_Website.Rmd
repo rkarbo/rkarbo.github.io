@@ -1,5 +1,5 @@
 ---
-title: "HW10_Website"
+title: "HW10"
 author: "Ryan Karbowicz"
 date: "5/7/2021"
 output: html_document
@@ -83,11 +83,16 @@ inclass <- na.omit(inclass)
 absent_people <- tibble (ID= c(3,4,8,9,10,11,12,13,14,16,19,21,22,25,26,27,29,37,39), trait = NA) #people who didnt take the survey 
 nodelist <-rbind (inclass, absent_people) %>% arrange(`ID`) #combine  people took the survey and people didn't take the survey
 
+```
+
+
+```{r}
 #edgelist head
 edgelist %>% head()
 #nodelist head
 nodelist %>% head()
 ```
+
 
 ### 2. Calculate measures of centrality and similarity in networks depending on the type of tie? Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?
 
