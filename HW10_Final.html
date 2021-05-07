@@ -333,46 +333,10 @@ $(document).ready(function () {
 </ol>
 <pre class="r"><code># Load packages and an xls file
 library(readxl)
-library(network)</code></pre>
-<pre><code>## network: Classes for Relational Data
-## Version 1.16.1 created on 2020-10-06.
-## copyright (c) 2005, Carter T. Butts, University of California-Irvine
-##                     Mark S. Handcock, University of California -- Los Angeles
-##                     David R. Hunter, Penn State University
-##                     Martina Morris, University of Washington
-##                     Skye Bender-deMoll, University of Washington
-##  For citation information, type citation(&quot;network&quot;).
-##  Type help(&quot;network-package&quot;) to get started.</code></pre>
-<pre class="r"><code>library(igraph) </code></pre>
-<pre><code>## 
-## Attaching package: &#39;igraph&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:network&#39;:
-## 
-##     %c%, %s%, add.edges, add.vertices, delete.edges, delete.vertices,
-##     get.edge.attribute, get.edges, get.vertex.attribute, is.bipartite,
-##     is.directed, list.edge.attributes, list.vertex.attributes,
-##     set.edge.attribute, set.vertex.attribute</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     decompose, spectrum</code></pre>
-<pre><code>## The following object is masked from &#39;package:base&#39;:
-## 
-##     union</code></pre>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.0     ✓ dplyr   1.0.2
-## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::as_data_frame() masks tibble::as_data_frame(), igraph::as_data_frame()
-## x purrr::compose()       masks igraph::compose()
-## x tidyr::crossing()      masks igraph::crossing()
-## x dplyr::filter()        masks stats::filter()
-## x dplyr::groups()        masks igraph::groups()
-## x dplyr::lag()           masks stats::lag()
-## x purrr::simplify()      masks igraph::simplify()</code></pre>
-<pre class="r"><code>hw10&lt;- read_excel(&quot;hw10.xlsx&quot;)
+library(network)
+library(igraph) 
+library(tidyverse)
+hw10&lt;- read_excel(&quot;hw10.xlsx&quot;)
 node&lt;- read_excel(&quot;hw10.xlsx&quot;, skip = 1)
 colnames(node) &lt;- c(&quot;ID&quot;, 1:40, &quot;trait&quot;) </code></pre>
 <div id="prepare-the-data-for-the-network-analysis-create-a-separate-edge-and-node-list" class="section level2">
@@ -384,80 +348,43 @@ edge_prep &lt;- node %&gt;% pivot_longer(col = -c(ID, trait), names_to = &quot;i
 edgelist &lt;- separate_rows(edge_prep, value, sep =&quot;,&quot;) %&gt;% 
   rename (`tie-type` = value)
 as.character(edgelist$`tie-type`)</code></pre>
-<pre><code>##    [1] NA  NA  NA  NA  NA  NA  NA  &quot;4&quot; NA  &quot;4&quot; &quot;1&quot; NA  NA  NA  NA  NA  NA  &quot;1&quot;
-##   [19] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  NA  &quot;4&quot;
-##   [37] NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA 
-##   [55] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-##   [73] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;2&quot;
-##   [91] &quot;1&quot; NA  &quot;1&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA 
-##  [109] NA  &quot;1&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot;
-##  [127] &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-##  [145] NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  &quot;1&quot;
-##  [163] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot;
-##  [181] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;2&quot; &quot;3&quot; &quot;1&quot; &quot;2&quot;
-##  [199] &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot;
-##  [217] &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-##  [235] &quot;3&quot; NA  NA  &quot;3&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;3&quot; NA 
-##  [253] NA  NA  &quot;3&quot; NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;1&quot; NA  NA  &quot;2&quot; NA 
-##  [271] &quot;4&quot; NA  NA  NA  NA  &quot;1&quot; NA  &quot;1&quot; &quot;1&quot; NA  &quot;1&quot; &quot;2&quot; &quot;1&quot; NA  &quot;4&quot; NA  NA  NA 
-##  [289] NA  NA  NA  &quot;2&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  &quot;2&quot; NA  NA  NA  &quot;2&quot; NA  NA  NA  NA  NA 
-##  [307] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-##  [325] &quot;5&quot; &quot;4&quot; &quot;4&quot; NA  &quot;4&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot; NA 
-##  [343] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot;
-##  [361] NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  &quot;1&quot; &quot;2&quot;
-##  [379] &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA 
-##  [397] NA  NA  NA  NA  NA  NA  NA  NA  &quot;4&quot; NA  &quot;4&quot; NA  &quot;1&quot; NA  NA  &quot;1&quot; &quot;3&quot; NA 
-##  [415] NA  NA  NA  NA  &quot;4&quot; NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA 
-##  [433] &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  &quot;5&quot; NA  NA  NA  NA  NA  NA  &quot;4&quot;
-##  [451] NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA 
-##  [469] NA  &quot;4&quot; &quot;1&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot;
-##  [487] &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA 
-##  [505] NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;2&quot;
-##  [523] &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot;
-##  [541] &quot;3&quot; NA  &quot;2&quot; &quot;5&quot; NA  NA  NA  NA  &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-##  [559] &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;2&quot; &quot;3&quot; NA  &quot;2&quot;
-##  [577] &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;2&quot; NA  NA  NA  &quot;2&quot; NA  &quot;2&quot; &quot;4&quot;
-##  [595] &quot;2&quot; &quot;2&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;2&quot; NA  &quot;2&quot; &quot;2&quot; &quot;4&quot; &quot;2&quot;
-##  [613] &quot;3&quot; &quot;4&quot; &quot;2&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-##  [631] NA  &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;4&quot; &quot;2&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA 
-##  [649] NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;4&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA 
-##  [667] NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;2&quot; NA  &quot;4&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; NA  NA  NA  &quot;2&quot; &quot;2&quot;
-##  [685] &quot;4&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot;
-##  [703] NA  NA  &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; NA  NA  &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;1&quot; &quot;4&quot;
-##  [721] &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot;
-##  [739] &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot;
-##  [757] &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA 
-##  [775] NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; NA 
-##  [793] &quot;4&quot; NA  NA  &quot;1&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; NA  &quot;1&quot; &quot;2&quot;
-##  [811] &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot;
-##  [829] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-##  [847] &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-##  [865] &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA 
-##  [883] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA 
-##  [901] NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;3&quot; &quot;4&quot; NA  NA  NA 
-##  [919] NA  NA  &quot;4&quot; NA  &quot;4&quot; NA  &quot;1&quot; &quot;3&quot; &quot;1&quot; &quot;3&quot; NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot;
-##  [937] NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; NA  &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot;
-##  [955] &quot;5&quot; NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;4&quot; &quot;2&quot;
-##  [973] &quot;4&quot; &quot;5&quot; NA  NA  &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot;
-##  [991] &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot;
-## [1009] &quot;4&quot; &quot;5&quot; NA  &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-## [1027] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-## [1045] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
-## [1063] NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot;
-## [1081] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  &quot;4&quot; NA  NA  &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA 
-## [1099] NA  NA  &quot;2&quot; &quot;3&quot; &quot;2&quot; NA  &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;2&quot; &quot;3&quot; NA  NA  NA  &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;1&quot;
-## [1117] &quot;3&quot; &quot;4&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot;
-## [1135] &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;2&quot; &quot;3&quot; &quot;1&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; NA  &quot;4&quot;
-## [1153] &quot;1&quot; NA  &quot;1&quot; NA  NA  NA  &quot;1&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-## [1171] &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-## [1189] &quot;5&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot;
-## [1207] NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;4&quot; NA  &quot;4&quot; NA  NA  NA  NA  NA  NA  NA  NA 
-## [1225] NA  &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  &quot;4&quot; &quot;3&quot; &quot;4&quot; NA  &quot;3&quot; &quot;4&quot;
-## [1243] &quot;5&quot; &quot;3&quot; &quot;3&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
-## [1261] &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  NA  NA  NA  NA 
-## [1279] NA  NA  NA  NA  &quot;2&quot; &quot;2&quot; NA  &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;1&quot; &quot;5&quot; NA  NA  &quot;2&quot;
-## [1297] &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA 
-## [1315] NA  NA  NA  &quot;1&quot; &quot;4&quot; &quot;5&quot;</code></pre>
+<pre><code>##    [1] NA  NA  NA  NA  NA  NA  NA  &quot;4&quot; NA  &quot;4&quot; &quot;1&quot; NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot;
+##   [29] NA  NA  NA  NA  NA  NA  NA  &quot;4&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA 
+##   [57] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA 
+##   [85] NA  NA  NA  NA  NA  &quot;2&quot; &quot;1&quot; NA  &quot;1&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;5&quot; NA 
+##  [113] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA 
+##  [141] NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA 
+##  [169] NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;2&quot; &quot;3&quot;
+##  [197] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA 
+##  [225] NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;3&quot; NA  NA  &quot;3&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;3&quot; NA 
+##  [253] NA  NA  &quot;3&quot; NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;1&quot; NA  NA  &quot;2&quot; NA  &quot;4&quot; NA  NA  NA  NA  &quot;1&quot; NA  &quot;1&quot; &quot;1&quot; NA 
+##  [281] &quot;1&quot; &quot;2&quot; &quot;1&quot; NA  &quot;4&quot; NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  &quot;2&quot; NA  NA  NA  &quot;2&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot;
+##  [309] &quot;3&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;4&quot; NA  &quot;4&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot;
+##  [337] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; NA  NA  NA  &quot;1&quot;
+##  [365] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;2&quot; &quot;3&quot;
+##  [393] &quot;4&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;4&quot; NA  &quot;4&quot; NA  &quot;1&quot; NA  NA  &quot;1&quot; &quot;3&quot; NA  NA  NA  NA  NA  &quot;4&quot; NA 
+##  [421] NA  NA  NA  NA  NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  &quot;5&quot; NA  NA  NA  NA  NA 
+##  [449] NA  &quot;4&quot; NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;4&quot; &quot;1&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot;
+##  [477] NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA 
+##  [505] NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  NA  NA 
+##  [533] NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; NA  &quot;2&quot; &quot;5&quot; NA  NA  NA  NA  &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot;
+##  [561] &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;2&quot; &quot;3&quot; NA  &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;2&quot; NA 
+##  [589] NA  NA  &quot;2&quot; NA  &quot;2&quot; &quot;4&quot; &quot;2&quot; &quot;2&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;2&quot; NA  &quot;2&quot; &quot;2&quot; &quot;4&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;2&quot; NA 
+##  [617] NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;2&quot; &quot;4&quot; &quot;2&quot; NA  NA  NA  NA  &quot;1&quot;
+##  [645] &quot;2&quot; &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;4&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  NA  NA 
+##  [673] &quot;2&quot; &quot;2&quot; NA  &quot;4&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; NA  NA  NA  &quot;2&quot; &quot;2&quot; &quot;4&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot;
+##  [701] &quot;4&quot; &quot;5&quot; NA  NA  &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; NA  NA  &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA 
+##  [729] NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot;
+##  [757] &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA 
+##  [785] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; NA  &quot;4&quot; NA  NA  &quot;1&quot; &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;3&quot; &quot;4&quot; NA  NA  &quot;1&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
+##  [813] &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;2&quot; &quot;3&quot; NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot;
+##  [841] &quot;5&quot; &quot;2&quot; &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA 
+##  [869] NA  NA  NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  &quot;4&quot; &quot;5&quot; &quot;1&quot; &quot;4&quot;
+##  [897] &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;3&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;4&quot; NA  &quot;4&quot; NA 
+##  [925] &quot;1&quot; &quot;3&quot; &quot;1&quot; &quot;3&quot; NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; &quot;4&quot; NA  NA  NA  NA  NA  &quot;1&quot; &quot;3&quot; NA  &quot;4&quot; &quot;1&quot;
+##  [953] &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  &quot;1&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  NA  NA  NA  &quot;2&quot; &quot;4&quot; &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  &quot;4&quot; NA  NA  &quot;1&quot;
+##  [981] &quot;2&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; &quot;5&quot; NA  NA  NA  NA  &quot;1&quot; &quot;2&quot; &quot;4&quot; &quot;5&quot;
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 320 entries ]</code></pre>
 <pre class="r"><code>edgelist$`tie-type`[is.na(edgelist$`tie-type`)] = 0 #NA values for tie-type to 0  
 edgelist &lt;- na.omit(edgelist)
 edgelist &lt;- edgelist %&gt;%
@@ -552,88 +479,33 @@ summary(classnormsnet)</code></pre>
 ## 551 143 133 131 176 112 
 ## 
 ## Network adjacency matrix:
-##    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
-## 1  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 2  0 0 1 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 3  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 4  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 5  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 6  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 7  1 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 8  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 9  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 10 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 11 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 12 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 13 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 14 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 15 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 16 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 17 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 18 1 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 19 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 20 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 21 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 22 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 23 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 24 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 25 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 26 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 27 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 28 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 29 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 30 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 31 0 0 1 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 32 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 33 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 34 1 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 35 0 0 1 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 36 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 37 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 38 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 39 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## 40 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-##    29 30 31 32 33 34 35 36 37 38 39 40
-## 1   0  0  0  0  0  0  0  0  0  0  0  0
-## 2   0  0  0  0  0  0  0  0  0  0  0  0
-## 3   0  0  0  0  0  0  0  0  0  0  0  0
-## 4   0  0  0  0  0  0  0  0  0  0  0  0
-## 5   0  0  0  0  0  0  0  0  0  0  0  0
-## 6   0  0  0  0  0  0  0  0  0  0  0  0
-## 7   0  0  0  0  0  0  0  0  0  0  0  0
-## 8   0  0  0  0  0  0  0  0  0  0  0  0
-## 9   0  0  0  0  0  0  0  0  0  0  0  0
-## 10  0  0  0  0  0  0  0  0  0  0  0  0
-## 11  0  0  0  0  0  0  0  0  0  0  0  0
-## 12  0  0  0  0  0  0  0  0  0  0  0  0
-## 13  0  0  0  0  0  0  0  0  0  0  0  0
-## 14  0  0  0  0  0  0  0  0  0  0  0  0
-## 15  0  0  0  0  0  0  0  0  0  0  0  0
-## 16  0  0  0  0  0  0  0  0  0  0  0  0
-## 17  0  0  0  0  0  0  0  0  0  0  0  0
-## 18  0  0  0  0  0  0  0  0  0  0  0  0
-## 19  0  0  0  0  0  0  0  0  0  0  0  0
-## 20  0  0  0  0  0  0  0  0  0  0  0  0
-## 21  0  0  0  0  0  0  0  0  0  0  0  0
-## 22  0  0  0  0  0  0  0  0  0  0  0  0
-## 23  0  0  0  0  0  0  0  0  0  0  0  0
-## 24  0  0  0  0  0  0  0  0  0  0  0  0
-## 25  0  0  0  0  0  0  0  0  0  0  0  0
-## 26  0  0  0  0  0  0  0  0  0  0  0  0
-## 27  0  0  0  0  0  0  0  0  0  0  0  0
-## 28  0  0  0  0  0  0  0  0  0  0  0  0
-## 29  0  0  0  0  0  0  0  0  0  0  0  0
-## 30  0  0  0  0  0  0  0  0  0  0  0  0
-## 31  0  0  0  0  0  0  0  0  0  0  0  0
-## 32  0  0  0  0  0  0  0  0  0  0  0  0
-## 33  0  0  0  0  0  0  0  0  0  0  0  0
-## 34  0  0  0  0  0  0  0  0  0  0  0  0
-## 35  0  0  0  0  0  0  0  0  0  0  0  0
-## 36  0  0  0  0  0  0  0  0  0  0  0  0
-## 37  0  0  0  0  0  0  0  0  0  0  0  0
-## 38  0  0  0  0  0  0  0  0  0  0  0  0
-## 39  0  0  0  0  0  0  0  0  0  0  0  0
-## 40  0  0  0  0  0  0  0  0  0  0  0  0</code></pre>
+##    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+## 1  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 2  0 0 1 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 3  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 4  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 5  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 6  0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 7  1 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 8  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 9  0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 10 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 11 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 12 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 13 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 14 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 15 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 16 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 17 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 18 1 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 19 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 20 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 21 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 22 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 23 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 24 0 1 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## 25 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 15 rows ]</code></pre>
 <pre class="r"><code>plot(classnormsnet, vertex.cex = 1) # very dense </code></pre>
 <p><img src="HW10_Final_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre class="r"><code>plot(classnormsnet, vertex.cex = 3)</code></pre>
@@ -752,29 +624,24 @@ diameter(network_class_tietype1, directed=F, weights=NA)</code></pre>
 </ol>
 <pre class="r"><code>#calculating closeness
 mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code></pre>
-<pre><code>## Warning in closeness(network_class_tietype1, mode = &quot;all&quot;, weights = NA): At
-## centrality.c:2784 :closeness centrality is not well-defined for disconnected
-## graphs</code></pre>
+<pre><code>## Warning in closeness(network_class_tietype1, mode = &quot;all&quot;, weights = NA): At centrality.c:2784 :closeness centrality is
+## not well-defined for disconnected graphs</code></pre>
 <pre><code>## [1] 0.0009559908</code></pre>
 <pre class="r"><code>mean(closeness(network_class_tietype2, mode=&quot;all&quot;, weights=NA))</code></pre>
-<pre><code>## Warning in closeness(network_class_tietype2, mode = &quot;all&quot;, weights = NA): At
-## centrality.c:2784 :closeness centrality is not well-defined for disconnected
-## graphs</code></pre>
+<pre><code>## Warning in closeness(network_class_tietype2, mode = &quot;all&quot;, weights = NA): At centrality.c:2784 :closeness centrality is
+## not well-defined for disconnected graphs</code></pre>
 <pre><code>## [1] 0.0008753162</code></pre>
 <pre class="r"><code>mean(closeness(network_class_tietype3, mode=&quot;all&quot;, weights=NA))</code></pre>
-<pre><code>## Warning in closeness(network_class_tietype3, mode = &quot;all&quot;, weights = NA): At
-## centrality.c:2784 :closeness centrality is not well-defined for disconnected
-## graphs</code></pre>
+<pre><code>## Warning in closeness(network_class_tietype3, mode = &quot;all&quot;, weights = NA): At centrality.c:2784 :closeness centrality is
+## not well-defined for disconnected graphs</code></pre>
 <pre><code>## [1] 0.0009559908</code></pre>
 <pre class="r"><code>mean(closeness(network_class_tietype4, mode=&quot;all&quot;, weights=NA))</code></pre>
-<pre><code>## Warning in closeness(network_class_tietype4, mode = &quot;all&quot;, weights = NA): At
-## centrality.c:2784 :closeness centrality is not well-defined for disconnected
-## graphs</code></pre>
+<pre><code>## Warning in closeness(network_class_tietype4, mode = &quot;all&quot;, weights = NA): At centrality.c:2784 :closeness centrality is
+## not well-defined for disconnected graphs</code></pre>
 <pre><code>## [1] 0.0009131176</code></pre>
 <pre class="r"><code>mean(closeness(network_class_tietype5, mode=&quot;all&quot;, weights=NA))</code></pre>
-<pre><code>## Warning in closeness(network_class_tietype5, mode = &quot;all&quot;, weights = NA): At
-## centrality.c:2784 :closeness centrality is not well-defined for disconnected
-## graphs</code></pre>
+<pre><code>## Warning in closeness(network_class_tietype5, mode = &quot;all&quot;, weights = NA): At centrality.c:2784 :closeness centrality is
+## not well-defined for disconnected graphs</code></pre>
 <pre><code>## [1] 0.0007701825</code></pre>
 <p><strong>Betweenness</strong></p>
 <p>Betweenness is the shortest paths between nodes that go through a given node</p>
@@ -828,8 +695,8 @@ mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code>
 </ol>
 <pre class="r"><code>centr_degree(network_class_tietype1, mode=&quot;in&quot;, normalized=T)</code></pre>
 <pre><code>## $res
-##  [1] 24 96 23  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## [26]  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##  [1] 24 96 23  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## [39]  0  0
 ## 
 ## $centralization
 ## [1] 2.369872
@@ -838,8 +705,8 @@ mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code>
 ## [1] 1560</code></pre>
 <pre class="r"><code>centr_degree(network_class_tietype2, mode=&quot;in&quot;, normalized=T)</code></pre>
 <pre><code>## $res
-##  [1] 24 77 32  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## [26]  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##  [1] 24 77 32  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## [39]  0  0
 ## 
 ## $centralization
 ## [1] 1.889103
@@ -848,8 +715,8 @@ mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code>
 ## [1] 1560</code></pre>
 <pre class="r"><code>centr_degree(network_class_tietype3, mode=&quot;in&quot;, normalized=T)</code></pre>
 <pre><code>## $res
-##  [1] 20 84 27  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## [26]  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##  [1] 20 84 27  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## [39]  0  0
 ## 
 ## $centralization
 ## [1] 2.069872
@@ -858,9 +725,8 @@ mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code>
 ## [1] 1560</code></pre>
 <pre class="r"><code>centr_degree(network_class_tietype4, mode=&quot;in&quot;, normalized=T)</code></pre>
 <pre><code>## $res
-##  [1]  27 118  31   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-## [20]   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
-## [39]   0   0
+##  [1]  27 118  31   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+## [30]   0   0   0   0   0   0   0   0   0   0   0
 ## 
 ## $centralization
 ## [1] 2.912821
@@ -869,8 +735,8 @@ mean(closeness(network_class_tietype1, mode=&quot;all&quot;, weights=NA))</code>
 ## [1] 1560</code></pre>
 <pre class="r"><code>centr_degree(network_class_tietype5, mode=&quot;in&quot;, normalized=T)</code></pre>
 <pre><code>## $res
-##  [1] 21 70 21  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
-## [26]  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+##  [1] 21 70 21  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+## [39]  0  0
 ## 
 ## $centralization
 ## [1] 1.723077
@@ -929,14 +795,9 @@ assortativity(net1, V(net1)$trait, directed=T)</code></pre>
 <p>Both the decision tree models are unable to predict any patterns. The regression model also does not show any significances. We suspect that the small sample size is our limitation. We conclude that trait (introvert/extravert) does not predict where introverts and extraverts are in the network.</p>
 <pre class="r"><code>library(rpart)
 library(rpart.plot)
-library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre class="r"><code>#decision tree: betweenness and trait
+library(caret)
+
+#decision tree: betweenness and trait
 tree_bt &lt;- nodelist %&gt;% mutate (between = betweenness(network_class, directed=F, weights=NA))
 model_tree_bt &lt;- rpart(between ~ as.factor(trait), method = &quot;anova&quot;, data = tree_bt, cp = 0.00001) 
 rpart.plot(model_tree_bt)</code></pre>
