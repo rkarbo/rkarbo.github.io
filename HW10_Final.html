@@ -371,18 +371,39 @@ edgelist &lt;- edgelist %&gt;%
 inclass &lt;- subset(node, select = -c(2:41) )
 inclass &lt;- na.omit(inclass)
 absent_people &lt;- tibble (ID= c(3,4,8,9,10,11,12,13,14,16,19,21,22,25,26,27,29,37,39), trait = NA) #people who didnt take the survey 
-nodelist &lt;-rbind (inclass, absent_people) %&gt;% arrange(`ID`) #combine  people took the survey and people didn&#39;t take the survey
-
-#edgelist head
-edgelist %&gt;% head()
-#nodelist head
+nodelist &lt;-rbind (inclass, absent_people) %&gt;% arrange(`ID`) #combine  people took the survey and people didn&#39;t take the survey</code></pre>
+<pre class="r"><code>#edgelist head
+edgelist %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   `out-tie` trait `in-tie` `tie-type`
+##       &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;     
+## 1         1     2 2        2         
+## 2         1     2 3        0         
+## 3         1     2 4        0         
+## 4         1     2 5        0         
+## 5         1     2 6        2         
+## 6         1     2 7        0</code></pre>
+<pre class="r"><code>#nodelist head
 nodelist %&gt;% head()</code></pre>
-</div>
-<div id="calculate-measures-of-centrality-and-similarity-in-networks-depending-on-the-type-of-tie-which-tie-type-generates-the-most-similar-network-in-terms-of-introversion-which-tie-type-is-the-most-dissimilar" class="section level3">
-<h3>2. Calculate measures of centrality and similarity in networks depending on the type of tie? Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?</h3>
-<p>Looking at the information centrality, tie type 4 (I ask for advice/help) has the greatest centralization while tie type 5 (Asks me for help/advice). Between-ness is also another measure of centrality that shows us how well-connected the parts are. In terms of between-ness, tie type 3 (Is my friend ) ranks the highest and tie type 2 (I have met during my time in MBDS) is the lowest. Likewise, tie type 3 also ranks the highest for reciprocity, though tie type 4 ranks the lowest. As for closeness, tie type 2 ranks the closest and tie type 3 is the least closest.</p>
-<p>Tie type 1 (I have texted in the last 7 days) generates the most similar network in terms of introversion, while tie type 3 generates the most dissimilar.</p>
-<pre class="r"><code>classnormsnet &lt;- network(edgelist, vertex.attr = nodelist, matrix.type = &quot;edgelist&quot;, ignore.eval = FALSE)
+<pre><code>## # A tibble: 6 x 2
+##      ID trait
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1     1     2
+## 2     2     3
+## 3     3    NA
+## 4     4    NA
+## 5     5     2
+## 6     6     2</code></pre>
+<pre><code>
+### 2. Calculate measures of centrality and similarity in networks depending on the type of tie? Which tie type generates the most similar network in terms of introversion? Which tie type is the most dissimilar?
+
+Looking at the information centrality, tie type 4 (I ask for advice/help) has the greatest centralization while tie type 5 (Asks me for help/advice). Between-ness is also another measure of centrality that shows us how well-connected the parts are. In terms of between-ness, tie type 3 (Is my friend ) ranks the highest and tie type 2 (I have met during my time in MBDS) is the lowest.  Likewise, tie type 3 also ranks the highest for reciprocity, though tie type 4 ranks the lowest. As for closeness, tie type 2 ranks the closest and tie type 3 is the least closest.
+
+Tie type 1 (I have texted in the last 7 days) generates the most similar network in terms of introversion, while tie type 3 generates the most dissimilar.
+
+
+```r
+classnormsnet &lt;- network(edgelist, vertex.attr = nodelist, matrix.type = &quot;edgelist&quot;, ignore.eval = FALSE)
 cat(head(capture.output(print(summary(classnormsnet))), 44), sep=&quot;\n&quot;)</code></pre>
 <pre><code>## Network attributes:
 ##   vertices = 40
@@ -428,15 +449,15 @@ cat(head(capture.output(print(summary(classnormsnet))), 44), sep=&quot;\n&quot;)
 ##   0   1   2   3   4   5 
 ## 551 143 133 131 176 112</code></pre>
 <pre class="r"><code>plot(classnormsnet, vertex.cex = 1) # very dense </code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 <pre class="r"><code>plot(classnormsnet, vertex.cex = 3)</code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
 <pre class="r"><code># graphing the network
 network_class &lt;- graph_from_data_frame(d = edgelist, vertices = nodelist, directed = TRUE)
 plot(network_class, edge.arrow.size = 0.1, vertex.size = 3)</code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
 <pre class="r"><code>plot(network_class, edge.arrow.size = 0.1, vertex.size = 6)</code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-3-4.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-4-4.png" width="672" /></p>
 <p><strong>Edgelist based on Tie-Type</strong></p>
 <pre class="r"><code># edgelist based on tie-type, nodelist based on trait
 edgelist1 &lt;- edgelist %&gt;% filter(`tie-type` == 1)
@@ -871,12 +892,12 @@ initial %&gt;% cbind(assortativity_vals) %&gt;% arrange(desc(assortativity_vals)
 tree_bt &lt;- nodelist %&gt;% mutate (between = betweenness(network_class, directed=F, weights=NA))
 model_tree_bt &lt;- rpart(between ~ as.factor(trait), method = &quot;anova&quot;, data = tree_bt, cp = 0.00001) 
 rpart.plot(model_tree_bt)</code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <pre class="r"><code>#decision tree: degree and trait
 tree_dg &lt;- nodelist %&gt;% mutate (degree = degree(network_class, mode=&quot;in&quot;))
 model_tree_dg &lt;- rpart(degree ~ as.factor(trait), method = &quot;anova&quot;, data = tree_dg, cp = 0.00001) 
 rpart.plot(model_tree_dg)</code></pre>
-<p><img src="HW10_Final_files/figure-html/unnamed-chunk-13-2.png" width="672" /></p>
+<p><img src="HW10_Final_files/figure-html/unnamed-chunk-14-2.png" width="672" /></p>
 <pre class="r"><code>#regression: bewteenness and trait
 summary(lm(between ~ as.factor(trait), data = tree_bt))</code></pre>
 <pre><code>## 
