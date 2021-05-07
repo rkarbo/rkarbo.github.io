@@ -333,45 +333,10 @@ $(document).ready(function () {
 </ol>
 <pre class="r"><code># Load packages and an xls file
 library(readxl)
-library(network)</code></pre>
-<pre><code>## network: Classes for Relational Data
-## Version 1.16.1 created on 2020-10-06.
-## copyright (c) 2005, Carter T. Butts, University of California-Irvine
-##                     Mark S. Handcock, University of California -- Los Angeles
-##                     David R. Hunter, Penn State University
-##                     Martina Morris, University of Washington
-##                     Skye Bender-deMoll, University of Washington
-##  For citation information, type citation(&quot;network&quot;).
-##  Type help(&quot;network-package&quot;) to get started.</code></pre>
-<pre class="r"><code>library(igraph) </code></pre>
-<pre><code>## 
-## Attaching package: &#39;igraph&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:network&#39;:
-## 
-##     %c%, %s%, add.edges, add.vertices, delete.edges, delete.vertices, get.edge.attribute, get.edges,
-##     get.vertex.attribute, is.bipartite, is.directed, list.edge.attributes, list.vertex.attributes,
-##     set.edge.attribute, set.vertex.attribute</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     decompose, spectrum</code></pre>
-<pre><code>## The following object is masked from &#39;package:base&#39;:
-## 
-##     union</code></pre>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
-## ✓ tibble  3.1.0     ✓ dplyr   1.0.2
-## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
-## ✓ readr   1.4.0     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::as_data_frame() masks tibble::as_data_frame(), igraph::as_data_frame()
-## x purrr::compose()       masks igraph::compose()
-## x tidyr::crossing()      masks igraph::crossing()
-## x dplyr::filter()        masks stats::filter()
-## x dplyr::groups()        masks igraph::groups()
-## x dplyr::lag()           masks stats::lag()
-## x purrr::simplify()      masks igraph::simplify()</code></pre>
-<pre class="r"><code>hw10&lt;- read_excel(&quot;hw10.xlsx&quot;)
+library(network)
+library(igraph) 
+library(tidyverse)
+hw10&lt;- read_excel(&quot;hw10.xlsx&quot;)
 node&lt;- read_excel(&quot;hw10.xlsx&quot;, skip = 1)
 colnames(node) &lt;- c(&quot;ID&quot;, 1:40, &quot;trait&quot;) </code></pre>
 <div id="prepare-the-data-for-the-network-analysis-create-a-separate-edge-and-node-list" class="section level2">
@@ -830,14 +795,9 @@ assortativity(net1, V(net1)$trait, directed=T)</code></pre>
 <p>Both the decision tree models are unable to predict any patterns. The regression model also does not show any significances. We suspect that the small sample size is our limitation. We conclude that trait (introvert/extravert) does not predict where introverts and extraverts are in the network.</p>
 <pre class="r"><code>library(rpart)
 library(rpart.plot)
-library(caret)</code></pre>
-<pre><code>## Loading required package: lattice</code></pre>
-<pre><code>## 
-## Attaching package: &#39;caret&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     lift</code></pre>
-<pre class="r"><code>#decision tree: betweenness and trait
+library(caret)
+
+#decision tree: betweenness and trait
 tree_bt &lt;- nodelist %&gt;% mutate (between = betweenness(network_class, directed=F, weights=NA))
 model_tree_bt &lt;- rpart(between ~ as.factor(trait), method = &quot;anova&quot;, data = tree_bt, cp = 0.00001) 
 rpart.plot(model_tree_bt)</code></pre>
